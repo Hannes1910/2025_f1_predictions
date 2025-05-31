@@ -5,6 +5,7 @@ import { handleDrivers } from './handlers/drivers';
 import { handleRaces } from './handlers/races';
 import { handleAccuracy } from './handlers/analytics';
 import { handleCreatePredictions, handleTriggerPredictions } from './handlers/predictions-admin';
+import { handleRaceDetails, handleQualifyingData } from './handlers/race-details';
 const router = Router();
 // CORS headers
 const corsHeaders = {
@@ -23,6 +24,8 @@ router.get('/api/results/:raceId', handleResults);
 router.get('/api/drivers', handleDrivers);
 router.get('/api/races', handleRaces);
 router.get('/api/analytics/accuracy', handleAccuracy);
+router.get('/api/race/:raceId', handleRaceDetails);
+router.get('/api/qualifying/:raceId', handleQualifyingData);
 // Admin routes (require API key)
 router.post('/api/admin/predictions', handleCreatePredictions);
 router.post('/api/admin/trigger-predictions', handleTriggerPredictions);

@@ -67,7 +67,7 @@ export async function handleRaceDetails(request: Request, env: Env): Promise<Res
       for (const prediction of predictions) {
         const actualResult = results.find(r => r.driver_id === prediction.driver_id)
         if (actualResult) {
-          const positionError = Math.abs(prediction.predicted_position - actualResult.position)
+          const positionError = Math.abs(Number(prediction.predicted_position) - Number(actualResult.position))
           totalPositionError += positionError
           if (positionError <= 2) { // Within 2 positions = "correct"
             correctPredictions++
@@ -84,7 +84,7 @@ export async function handleRaceDetails(request: Request, env: Env): Promise<Res
     }
 
     // Get weather data for the race
-    const weather = await getWeatherForRace(race.circuit, race.date)
+    const weather = await getWeatherForRace(String(race.circuit), String(race.date))
 
     // Get feature explanations
     const { results: features } = await env.DB.prepare(`

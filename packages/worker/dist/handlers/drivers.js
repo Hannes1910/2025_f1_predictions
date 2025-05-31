@@ -2,16 +2,30 @@ export async function handleDrivers(request, env) {
     try {
         const { results } = await env.DB.prepare(`SELECT 
         d.*,
-        COUNT(DISTINCT p.race_id) as total_predictions,
-        AVG(p.predicted_position) as avg_predicted_position,
-        COUNT(DISTINCT rr.race_id) as total_races,
-        AVG(rr.position) as avg_actual_position,
-        SUM(rr.points) as total_points
+        COALESCE(pred.total_predictions, 0) as total_predictions,
+        pred.avg_predicted_position,
+        COALESCE(res.total_races, 0) as total_races,
+        res.avg_actual_position,
+        COALESCE(res.total_points, 0) as total_points
        FROM drivers d
-       LEFT JOIN predictions p ON d.id = p.driver_id
-       LEFT JOIN race_results rr ON d.id = rr.driver_id
-       GROUP BY d.id
-       ORDER BY total_points DESC`).all();
+       LEFT JOIN (
+         SELECT 
+           driver_id,
+           COUNT(DISTINCT race_id) as total_predictions,
+           AVG(predicted_position) as avg_predicted_position
+         FROM predictions 
+         GROUP BY driver_id
+       ) pred ON d.id = pred.driver_id
+       LEFT JOIN (
+         SELECT 
+           driver_id,
+           COUNT(DISTINCT race_id) as total_races,
+           AVG(position) as avg_actual_position,
+           SUM(points) as total_points
+         FROM race_results 
+         GROUP BY driver_id
+       ) res ON d.id = res.driver_id
+       ORDER BY COALESCE(res.total_points, 0) DESC`).all();
         return new Response(JSON.stringify({ drivers: results }), {
             headers: { 'Content-Type': 'application/json' },
         });
