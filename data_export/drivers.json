@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "code": "VER",
+    "name": "Max Verstappen",
+    "team": "Red Bull"
+  },
+  {
+    "id": 2,
+    "code": "NOR",
+    "name": "Lando Norris",
+    "team": "McLaren"
+  },
+  {
+    "id": 3,
+    "code": "PIA",
+    "name": "Oscar Piastri",
+    "team": "McLaren"
+  },
+  {
+    "id": 4,
+    "code": "LEC",
+    "name": "Charles Leclerc",
+    "team": "Ferrari"
+  },
+  {
+    "id": 5,
+    "code": "SAI",
+    "name": "Carlos Sainz",
+    "team": "Ferrari"
+  },
+  {
+    "id": 6,
+    "code": "HAM",
+    "name": "Lewis Hamilton",
+    "team": "Mercedes"
+  },
+  {
+    "id": 7,
+    "code": "RUS",
+    "name": "George Russell",
+    "team": "Mercedes"
+  },
+  {
+    "id": 8,
+    "code": "ALO",
+    "name": "Fernando Alonso",
+    "team": "Aston Martin"
+  },
+  {
+    "id": 9,
+    "code": "STR",
+    "name": "Lance Stroll",
+    "team": "Aston Martin"
+  },
+  {
+    "id": 10,
+    "code": "GAS",
+    "name": "Pierre Gasly",
+    "team": "Alpine"
+  },
+  {
+    "id": 11,
+    "code": "OCO",
+    "name": "Esteban Ocon",
+    "team": "Alpine"
+  },
+  {
+    "id": 12,
+    "code": "TSU",
+    "name": "Yuki Tsunoda",
+    "team": "Racing Bulls"
+  },
+  {
+    "id": 13,
+    "code": "LAW",
+    "name": "Liam Lawson",
+    "team": "Racing Bulls"
+  },
+  {
+    "id": 14,
+    "code": "ALB",
+    "name": "Alexander Albon",
+    "team": "Williams"
+  },
+  {
+    "id": 15,
+    "code": "HAD",
+    "name": "Isack Hadjar",
+    "team": "Red Bull"
+  },
+  {
+    "id": 16,
+    "code": "ANT",
+    "name": "Andrea Kimi Antonelli",
+    "team": "Mercedes"
+  },
+  {
+    "id": 17,
+    "code": "HUL",
+    "name": "Nico Hulkenberg",
+    "team": "Kick Sauber"
+  },
+  {
+    "id": 18,
+    "code": "BOR",
+    "name": "Gabriel Bortoleto",
+    "team": "Kick Sauber"
+  },
+  {
+    "id": 19,
+    "code": "BEA",
+    "name": "Oliver Bearman",
+    "team": "Haas"
+  },
+  {
+    "id": 20,
+    "code": "DOO",
+    "name": "Jack Doohan",
+    "team": "Alpine"
+  }
+]

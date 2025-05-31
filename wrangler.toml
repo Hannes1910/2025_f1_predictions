@@ -1,0 +1,13 @@
+name = "f1-predictions-api"
+main = "packages/worker/dist/index.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[[d1_databases]]
+binding = "DB"
+database_name = "f1-predictions"
+database_id = "198d0076-a161-4781-9596-3be132b98aa1"
+
+# Build is handled by package.json scripts

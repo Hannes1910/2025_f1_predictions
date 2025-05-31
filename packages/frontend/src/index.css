@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-f1-black text-f1-white font-titillium antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-f1-gray-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-f1-gray-600 rounded-full;
+    transition: background-color 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-f1-gray-500;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply backdrop-blur-lg bg-f1-gray-900/50 border border-f1-gray-800;
+  }
+
+  .gradient-border {
+    @apply relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg;
+    padding: 1px;
+    background: linear-gradient(135deg, #E10600, #FF8700);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: exclude;
+    mask-composite: exclude;
+  }
+
+  .team-gradient {
+    background: linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to));
+  }
+
+  .loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      #1F1F28 0%,
+      #2F2F3A 50%,
+      #1F1F28 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "f1-predictions-2025",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=packages/worker & npm run dev --workspace=packages/frontend",
+    "build": "npm run build --workspaces",
+    "deploy": "npm run deploy --workspace=packages/worker && npm run deploy --workspace=packages/frontend",
+    "test": "npm run test --workspaces"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "wrangler": "^4.18.0"
+  }
+}

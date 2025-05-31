@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "race_id": 1,
+    "driver_id": 4,
+    "predicted_position": 1,
+    "predicted_time": 82.67,
+    "confidence": 0.85,
+    "model_version": "v1.0.0",
+    "created_at": "2025-05-30 21:31:54"
+  },
+  {
+    "id": 2,
+    "race_id": 1,
+    "driver_id": 2,
+    "predicted_position": 2,
+    "predicted_time": 83.12,
+    "confidence": 0.85,
+    "model_version": "v1.0.0",
+    "created_at": "2025-05-30 21:31:54"
+  },
+  {
+    "id": 3,
+    "race_id": 1,
+    "driver_id": 1,
+    "predicted_position": 3,
+    "predicted_time": 83.45,
+    "confidence": 0.85,
+    "model_version": "v1.0.0",
+    "created_at": "2025-05-30 21:31:54"
+  }
+]

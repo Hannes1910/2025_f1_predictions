@@ -1,0 +1,194 @@
+[
+  {
+    "id": 1,
+    "season": 2025,
+    "round": 1,
+    "name": "Australian Grand Prix",
+    "date": "2025-03-16",
+    "circuit": "Melbourne"
+  },
+  {
+    "id": 2,
+    "season": 2025,
+    "round": 2,
+    "name": "Chinese Grand Prix",
+    "date": "2025-03-23",
+    "circuit": "Shanghai"
+  },
+  {
+    "id": 3,
+    "season": 2025,
+    "round": 3,
+    "name": "Japanese Grand Prix",
+    "date": "2025-04-06",
+    "circuit": "Suzuka"
+  },
+  {
+    "id": 4,
+    "season": 2025,
+    "round": 4,
+    "name": "Bahrain Grand Prix",
+    "date": "2025-04-13",
+    "circuit": "Bahrain"
+  },
+  {
+    "id": 5,
+    "season": 2025,
+    "round": 5,
+    "name": "Saudi Arabian Grand Prix",
+    "date": "2025-04-20",
+    "circuit": "Jeddah"
+  },
+  {
+    "id": 6,
+    "season": 2025,
+    "round": 6,
+    "name": "Miami Grand Prix",
+    "date": "2025-05-04",
+    "circuit": "Miami"
+  },
+  {
+    "id": 7,
+    "season": 2025,
+    "round": 7,
+    "name": "Emilia Romagna Grand Prix",
+    "date": "2025-05-18",
+    "circuit": "Imola"
+  },
+  {
+    "id": 8,
+    "season": 2025,
+    "round": 8,
+    "name": "Monaco Grand Prix",
+    "date": "2025-05-25",
+    "circuit": "Monaco"
+  },
+  {
+    "id": 9,
+    "season": 2025,
+    "round": 9,
+    "name": "Spanish Grand Prix",
+    "date": "2025-06-01",
+    "circuit": "Barcelona"
+  },
+  {
+    "id": 10,
+    "season": 2025,
+    "round": 10,
+    "name": "Canadian Grand Prix",
+    "date": "2025-06-15",
+    "circuit": "Montreal"
+  },
+  {
+    "id": 11,
+    "season": 2025,
+    "round": 11,
+    "name": "Austrian Grand Prix",
+    "date": "2025-06-29",
+    "circuit": "Red Bull Ring"
+  },
+  {
+    "id": 12,
+    "season": 2025,
+    "round": 12,
+    "name": "British Grand Prix",
+    "date": "2025-07-06",
+    "circuit": "Silverstone"
+  },
+  {
+    "id": 13,
+    "season": 2025,
+    "round": 13,
+    "name": "Belgian Grand Prix",
+    "date": "2025-07-27",
+    "circuit": "Spa"
+  },
+  {
+    "id": 14,
+    "season": 2025,
+    "round": 14,
+    "name": "Hungarian Grand Prix",
+    "date": "2025-08-03",
+    "circuit": "Budapest"
+  },
+  {
+    "id": 15,
+    "season": 2025,
+    "round": 15,
+    "name": "Dutch Grand Prix",
+    "date": "2025-08-31",
+    "circuit": "Zandvoort"
+  },
+  {
+    "id": 16,
+    "season": 2025,
+    "round": 16,
+    "name": "Italian Grand Prix",
+    "date": "2025-09-07",
+    "circuit": "Monza"
+  },
+  {
+    "id": 17,
+    "season": 2025,
+    "round": 17,
+    "name": "Azerbaijan Grand Prix",
+    "date": "2025-09-21",
+    "circuit": "Baku"
+  },
+  {
+    "id": 18,
+    "season": 2025,
+    "round": 18,
+    "name": "Singapore Grand Prix",
+    "date": "2025-10-05",
+    "circuit": "Singapore"
+  },
+  {
+    "id": 19,
+    "season": 2025,
+    "round": 19,
+    "name": "United States Grand Prix",
+    "date": "2025-10-19",
+    "circuit": "Austin"
+  },
+  {
+    "id": 20,
+    "season": 2025,
+    "round": 20,
+    "name": "Mexican Grand Prix",
+    "date": "2025-10-26",
+    "circuit": "Mexico City"
+  },
+  {
+    "id": 21,
+    "season": 2025,
+    "round": 21,
+    "name": "Brazilian Grand Prix",
+    "date": "2025-11-09",
+    "circuit": "Interlagos"
+  },
+  {
+    "id": 22,
+    "season": 2025,
+    "round": 22,
+    "name": "Las Vegas Grand Prix",
+    "date": "2025-11-22",
+    "circuit": "Las Vegas"
+  },
+  {
+    "id": 23,
+    "season": 2025,
+    "round": 23,
+    "name": "Qatar Grand Prix",
+    "date": "2025-11-30",
+    "circuit": "Lusail"
+  },
+  {
+    "id": 24,
+    "season": 2025,
+    "round": 24,
+    "name": "Abu Dhabi Grand Prix",
+    "date": "2025-12-07",
+    "circuit": "Yas Marina"
+  }
+]
