@@ -4,6 +4,7 @@ import { handleResults } from './handlers/results';
 import { handleDrivers } from './handlers/drivers';
 import { handleRaces } from './handlers/races';
 import { handleAccuracy } from './handlers/analytics';
+import { handleCreatePredictions, handleTriggerPredictions } from './handlers/predictions-admin';
 const router = Router();
 // CORS headers
 const corsHeaders = {
@@ -22,6 +23,9 @@ router.get('/api/results/:raceId', handleResults);
 router.get('/api/drivers', handleDrivers);
 router.get('/api/races', handleRaces);
 router.get('/api/analytics/accuracy', handleAccuracy);
+// Admin routes (require API key)
+router.post('/api/admin/predictions', handleCreatePredictions);
+router.post('/api/admin/trigger-predictions', handleTriggerPredictions);
 // Health check
 router.get('/api/health', () => {
     return new Response(JSON.stringify({ status: 'ok' }), {
@@ -42,4 +46,17 @@ export default {
             return response;
         });
     },
+    async scheduled(event, env, ctx) {
+        // Handle cron trigger
+        const request = new Request('https://worker/api/admin/trigger-predictions', {
+            method: 'POST',
+            headers: {
+                'X-CF-Cron-Trigger': 'true',
+                'Content-Type': 'application/json'
+            }
+        });
+        const response = await handleTriggerPredictions(request, env);
+        const result = await response.json();
+        console.log('Cron trigger result:', result);
+    }
 };

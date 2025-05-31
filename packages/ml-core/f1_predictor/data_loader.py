@@ -47,39 +47,35 @@ class DataLoader:
             logger.error(f"Error loading qualifying data: {e}")
             return pd.DataFrame()
     
-    def get_weather_data(self, lat: float, lon: float, date: str, api_key: str) -> Dict[str, float]:
+    def get_weather_data(self, lat: float, lon: float, date: str, api_key: str = None, circuit: str = None) -> Dict[str, float]:
         """Fetch weather data for race location and date"""
         try:
-            url = f"http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric"
-            response = requests.get(url)
-            weather_data = response.json()
+            # Import weather providers
+            from .weather_providers import WeatherFactory, get_circuit_weather_estimate
             
-            # Find forecast closest to race time
-            race_datetime = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
-            
-            closest_forecast = None
-            min_diff = float('inf')
-            
-            for forecast in weather_data.get("list", []):
-                forecast_time = datetime.fromtimestamp(forecast["dt"])
-                diff = abs((forecast_time - race_datetime).total_seconds())
+            # Try to get real weather data
+            if lat != 0 and lon != 0:
+                provider = WeatherFactory.create_provider(api_key)
+                weather_data = provider.get_weather_data(lat, lon, date)
                 
-                if diff < min_diff:
-                    min_diff = diff
-                    closest_forecast = forecast
+                # If we got valid data, return it
+                if weather_data.get("temperature", 0) != 20 or weather_data.get("rain_probability", 0) != 0:
+                    return weather_data
             
-            if closest_forecast:
-                return {
-                    "temperature": closest_forecast["main"]["temp"],
-                    "rain_probability": closest_forecast.get("pop", 0),
-                    "humidity": closest_forecast["main"]["humidity"],
-                    "wind_speed": closest_forecast["wind"]["speed"]
-                }
+            # Fallback to circuit-specific historical patterns
+            if circuit:
+                logger.info(f"Using historical weather patterns for {circuit}")
+                return get_circuit_weather_estimate(circuit)
             
+            # Final fallback to default
             return {"temperature": 20, "rain_probability": 0, "humidity": 50, "wind_speed": 5}
             
         except Exception as e:
             logger.error(f"Error fetching weather data: {e}")
+            # Fallback to circuit patterns if available
+            if circuit:
+                from .weather_providers import get_circuit_weather_estimate
+                return get_circuit_weather_estimate(circuit)
             return {"temperature": 20, "rain_probability": 0, "humidity": 50, "wind_speed": 5}
     
     def get_driver_mapping(self) -> Dict[str, str]:

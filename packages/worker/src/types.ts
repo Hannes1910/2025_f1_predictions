@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database;
   ENVIRONMENT: string;
+  PREDICTIONS_API_KEY: string;
 }
 
 export interface Driver {

@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/bundle-GvoPzT/checked-fetch.js
+// .wrangler/tmp/bundle-bIQC9Y/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,7 +27,7 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// .wrangler/tmp/bundle-GvoPzT/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-bIQC9Y/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -260,6 +260,105 @@ async function handleAccuracy(request, env) {
 }
 __name(handleAccuracy, "handleAccuracy");
 
+// packages/worker/dist/handlers/predictions-admin.js
+async function handleCreatePredictions(request, env) {
+  try {
+    const apiKey = request.headers.get("X-API-Key");
+    if (apiKey !== env.PREDICTIONS_API_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const data = await request.json();
+    if (!data.race_id || !data.predictions || !data.model_version) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const timestamp = (/* @__PURE__ */ new Date()).toISOString();
+    await env.DB.prepare("DELETE FROM predictions WHERE race_id = ?").bind(data.race_id).run();
+    const insertPromises = data.predictions.map((pred) => env.DB.prepare(`INSERT INTO predictions 
+         (race_id, driver_id, predicted_position, predicted_time, confidence, model_version, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(data.race_id, pred.driver_id, pred.predicted_position, pred.predicted_time, pred.confidence, data.model_version, timestamp).run());
+    await Promise.all(insertPromises);
+    if (data.model_metrics) {
+      await env.DB.prepare(`INSERT INTO model_metrics (model_version, race_id, mae, accuracy, created_at)
+         VALUES (?, ?, ?, ?, ?)`).bind(data.model_version, data.race_id, data.model_metrics.mae, data.model_metrics.accuracy, timestamp).run();
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      predictions_stored: data.predictions.length,
+      model_version: data.model_version
+    }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Error creating predictions:", error);
+    return new Response(JSON.stringify({ error: "Failed to store predictions" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handleCreatePredictions, "handleCreatePredictions");
+async function handleTriggerPredictions(request, env) {
+  try {
+    const apiKey = request.headers.get("X-API-Key");
+    const isCronTrigger = request.headers.get("X-CF-Cron-Trigger") === "true";
+    if (apiKey !== env.PREDICTIONS_API_KEY && !isCronTrigger) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const { results: upcomingRaces } = await env.DB.prepare(`SELECT r.*, COUNT(p.id) as prediction_count
+       FROM races r
+       LEFT JOIN predictions p ON r.id = p.race_id
+       WHERE r.date >= date('now')
+         AND r.date <= date('now', '+14 days')
+         AND r.season = 2025
+       GROUP BY r.id
+       ORDER BY r.date
+       LIMIT 5`).all();
+    const racesToProcess = upcomingRaces.filter((race) => race.prediction_count === 0);
+    if (racesToProcess.length === 0) {
+      return new Response(JSON.stringify({
+        message: "No races need predictions",
+        checked: upcomingRaces.length
+      }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const results = [];
+    for (const race of racesToProcess) {
+      results.push({
+        race_id: race.id,
+        race_name: race.name,
+        date: race.date,
+        status: "pending"
+      });
+    }
+    await env.DB.prepare(`INSERT INTO prediction_triggers (races_count, trigger_type, created_at)
+       VALUES (?, ?, ?)`).bind(racesToProcess.length, isCronTrigger ? "cron" : "manual", (/* @__PURE__ */ new Date()).toISOString()).run();
+    return new Response(JSON.stringify({
+      success: true,
+      races_to_process: results,
+      message: `Triggered predictions for ${racesToProcess.length} races`
+    }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Error triggering predictions:", error);
+    return new Response(JSON.stringify({ error: "Failed to trigger predictions" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handleTriggerPredictions, "handleTriggerPredictions");
+
 // packages/worker/dist/index.js
 var router = e();
 var corsHeaders = {
@@ -276,6 +375,8 @@ router.get("/api/results/:raceId", handleResults);
 router.get("/api/drivers", handleDrivers);
 router.get("/api/races", handleRaces);
 router.get("/api/analytics/accuracy", handleAccuracy);
+router.post("/api/admin/predictions", handleCreatePredictions);
+router.post("/api/admin/trigger-predictions", handleTriggerPredictions);
 router.get("/api/health", () => {
   return new Response(JSON.stringify({ status: "ok" }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -292,6 +393,18 @@ var dist_default = {
       });
       return response;
     });
+  },
+  async scheduled(event, env, ctx) {
+    const request = new Request("https://worker/api/admin/trigger-predictions", {
+      method: "POST",
+      headers: {
+        "X-CF-Cron-Trigger": "true",
+        "Content-Type": "application/json"
+      }
+    });
+    const response = await handleTriggerPredictions(request, env);
+    const result = await response.json();
+    console.log("Cron trigger result:", result);
   }
 };
 
@@ -336,7 +449,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-GvoPzT/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-bIQC9Y/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -368,7 +481,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-GvoPzT/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-bIQC9Y/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
