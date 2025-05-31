@@ -4,6 +4,8 @@ import Predictions from '@/pages/Predictions'
 import Calendar from '@/pages/Calendar'
 import Drivers from '@/pages/Drivers'
 import Analytics from '@/pages/Analytics'
+import RaceDetails from '@/pages/RaceDetails'
+import Historical from '@/pages/Historical'
 
 function App() {
   return (
@@ -13,8 +15,8 @@ function App() {
         <Route path="calendar" element={<Calendar />} />
         <Route path="drivers" element={<Drivers />} />
         <Route path="analytics" element={<Analytics />} />
-        <Route path="historical" element={<div>Historical page coming soon...</div>} />
-        <Route path="race/:raceId" element={<div>Race details page coming soon...</div>} />
+        <Route path="historical" element={<Historical />} />
+        <Route path="race/:raceId" element={<RaceDetails />} />
       </Route>
     </Routes>
   )

@@ -34,12 +34,20 @@ export default function Analytics() {
     predictionAccuracy.reduce((sum, p) => sum + p.avg_position_error, 0) /
       predictionAccuracy.length || 0
 
-  // Prepare chart data
-  const accuracyOverTime = predictionAccuracy.map(p => ({
-    race: p.race_name.split(' ')[0],
-    positionError: p.avg_position_error,
-    timeError: p.avg_time_error,
-  }))
+  // Prepare chart data - use model metrics if prediction accuracy is empty
+  const chartData = predictionAccuracy.length > 0 
+    ? predictionAccuracy.map(p => ({
+        race: p.race_name?.split(' ')[0] || 'Unknown',
+        positionError: p.avg_position_error || 0,
+        timeError: p.avg_time_error || 0,
+      }))
+    : modelMetrics.map(m => ({
+        race: m.race_name?.split(' ')[0] || 'Race',
+        positionError: m.mae || 0, // Use MAE as position error approximation
+        timeError: m.mae || 0,
+      }))
+  
+  const accuracyOverTime = chartData
 
   const modelPerformance = modelMetrics.slice(-10).map(m => ({
     date: formatDate(m.created_at),
@@ -57,6 +65,49 @@ export default function Analytics() {
       >
         <h1 className="text-4xl md:text-5xl font-bold">Analytics</h1>
         <p className="text-f1-gray-400">Model performance and prediction accuracy</p>
+      </motion.div>
+
+      {/* Explanations Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-blue-50 border border-blue-200 rounded-lg p-6"
+      >
+        <h2 className="text-lg font-semibold text-blue-900 mb-4">📊 Understanding the Metrics</h2>
+        <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <h3 className="font-medium text-blue-800 mb-2">🎯 MAE (Mean Absolute Error)</h3>
+            <p className="text-blue-700">
+              Measures the average difference between predicted and actual lap times in seconds. 
+              Lower values indicate more accurate time predictions. A MAE of 2.0s means our 
+              predictions are typically within 2 seconds of the actual lap time.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium text-blue-800 mb-2">📈 Model Accuracy</h3>
+            <p className="text-blue-700">
+              Percentage of predictions that were within 2 positions of the actual result. 
+              For example, 75% accuracy means 3 out of 4 predictions were very close to reality. 
+              This metric shows how well we predict race positions.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium text-blue-800 mb-2">📍 Position Error</h3>
+            <p className="text-blue-700">
+              Average number of positions between predicted and actual finishing positions. 
+              A value of 1.5 means predictions are typically off by about 1-2 positions. 
+              Lower is better for position accuracy.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium text-blue-800 mb-2">🔬 Model Versions</h3>
+            <p className="text-blue-700">
+              We continuously improve our models based on new data and feedback. 
+              Each version represents an iteration with potentially better algorithms, 
+              new features, or improved training data.
+            </p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Key Metrics */}

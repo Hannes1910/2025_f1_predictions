@@ -27,6 +27,41 @@ export default function Drivers() {
         <p className="text-f1-gray-400">2025 Season Grid</p>
       </motion.div>
 
+      {/* Driver Stats Explanation */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-yellow-50 border border-yellow-200 rounded-lg p-6"
+      >
+        <h2 className="text-lg font-semibold text-yellow-900 mb-4">🏎️ Understanding Driver Performance</h2>
+        <div className="grid md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <h3 className="font-medium text-yellow-800 mb-2">📊 Performance Score</h3>
+            <p className="text-yellow-700">
+              Shows how much better (+) or worse (-) a driver performs compared to predictions. 
+              For example, +2.0 means the driver typically finishes 2 positions better than predicted, 
+              indicating strong race pace and wheel-to-wheel skills.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium text-yellow-800 mb-2">🎯 Average Position</h3>
+            <p className="text-yellow-700">
+              The driver's typical finishing position across all completed races. 
+              This reflects overall performance throughout the season, combining 
+              qualifying speed, race craft, and consistency.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium text-yellow-800 mb-2">🔮 Predicted vs Actual</h3>
+            <p className="text-yellow-700">
+              Compares our AI predictions with actual race results. Green values indicate 
+              drivers who consistently outperform expectations, while red shows those 
+              who underperform relative to car capability and qualifying position.
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <motion.div

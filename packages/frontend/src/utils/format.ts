@@ -27,3 +27,14 @@ export const formatConfidence = (confidence: number): string => {
 export const formatTimeFromNow = (date: string): string => {
   return formatDistance(parseISO(date), new Date(), { addSuffix: true })
 }
+
+export const formatTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  const ms = Math.floor((seconds % 1) * 1000)
+  return `${minutes}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`
+}
+
+export const formatPercent = (value: number): string => {
+  return `${(value * 100).toFixed(0)}%`
+}
