@@ -41,7 +41,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        cd packages/ml-core && pip install -e .
+        # Install ml-core package if it exists
+        if [ -d "packages/ml-core" ]; then
+          cd packages/ml-core && pip install -e . && cd ../..
+        fi
     
     - name: Run predictions pipeline
       env:
@@ -55,11 +58,8 @@ jobs:
           echo "Training ensemble models with SMART data strategy..."
           echo "- 2025: Current driver/car performance"
           echo "- 2024: Historical track patterns only"
-          # Copy all data loaders to root for import
-          cp load_real_f1_data.py ./
-          cp load_real_f1_data_v2.py ./
-          cp load_smart_f1_data.py ./
-          python train_models_ensemble.py
+          # Use production training script with proper error handling
+          python train_models_production.py
         fi
         
         # Run legacy model for comparison

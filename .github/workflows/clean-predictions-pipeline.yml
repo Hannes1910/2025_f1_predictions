@@ -1,0 +1,157 @@
+name: Clean F1 Predictions Pipeline
+
+on:
+  schedule:
+    # Run every day at 12:00 UTC
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      race_id:
+        description: 'Specific race ID to predict (optional)'
+        required: false
+        default: ''
+
+env:
+  WORKER_URL: https://f1-predictions-api.vprifntqe.workers.dev
+  PREDICTIONS_API_KEY: ${{ secrets.PREDICTIONS_API_KEY }}
+
+jobs:
+  generate-predictions:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          cache/fastf1
+        key: ${{ runner.os }}-pip-clean-${{ hashFiles('requirements.txt') }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Install only required packages for clean system
+        pip install fastf1 pandas numpy scikit-learn joblib
+    
+    - name: Load Real F1 Data
+      run: |
+        echo "📥 Loading real F1 data (no mock data)..."
+        # Create cache directory
+        mkdir -p cache/fastf1
+        
+        # Run clean data pipeline
+        if [ -f "f1_data_pipeline_clean.py" ]; then
+          python f1_data_pipeline_clean.py
+        else
+          echo "⚠️ Clean data pipeline not found, skipping data load"
+        fi
+    
+    - name: Check Data Availability
+      id: check_data
+      run: |
+        echo "🔍 Checking data availability from Worker API..."
+        
+        # Test data endpoints
+        DRIVER_DATA=$(curl -s "${{ env.WORKER_URL }}/api/data/driver/1")
+        RACE_DATA=$(curl -s "${{ env.WORKER_URL }}/api/data/race/1/features")
+        
+        # Check if we have valid data
+        if echo "$DRIVER_DATA" | jq -e '.data' > /dev/null 2>&1; then
+          echo "✅ Driver data available"
+          echo "has_data=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ No driver data available"
+          echo "has_data=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Generate Predictions
+      if: steps.check_data.outputs.has_data == 'true'
+      run: |
+        echo "🏎️ Generating predictions with real data..."
+        
+        # Determine which race to predict
+        if [ -n "${{ github.event.inputs.race_id }}" ]; then
+          RACE_ID="${{ github.event.inputs.race_id }}"
+        else
+          # Find next race
+          RACE_ID=$(curl -s "${{ env.WORKER_URL }}/api/races" | jq -r '.races[] | select(.status == "upcoming") | .id' | head -1)
+        fi
+        
+        echo "Predicting race ID: $RACE_ID"
+        
+        # Call ML service if deployed
+        ML_SERVICE_URL="${{ secrets.ML_SERVICE_URL }}"
+        if [ -n "$ML_SERVICE_URL" ]; then
+          echo "📊 Calling ML service..."
+          PREDICTIONS=$(curl -s -X POST "$ML_SERVICE_URL/predict/race/$RACE_ID")
+          
+          if echo "$PREDICTIONS" | jq -e '.predictions' > /dev/null 2>&1; then
+            echo "✅ Predictions generated successfully"
+            echo "$PREDICTIONS" > predictions_${RACE_ID}.json
+          else
+            echo "⚠️ ML service returned no predictions"
+          fi
+        else
+          echo "⚠️ ML service URL not configured"
+        fi
+    
+    - name: Store Predictions
+      if: steps.check_data.outputs.has_data == 'true'
+      run: |
+        echo "💾 Storing predictions to D1..."
+        
+        # Check if we have predictions to store
+        if [ -f predictions_*.json ]; then
+          RACE_ID=$(ls predictions_*.json | head -1 | sed 's/predictions_//;s/.json//')
+          
+          # Call Worker API to store predictions
+          curl -X POST "${{ env.WORKER_URL }}/api/admin/predictions" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${{ env.PREDICTIONS_API_KEY }}" \
+            -d @predictions_${RACE_ID}.json
+        else
+          echo "⚠️ No predictions to store"
+        fi
+    
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: predictions-${{ github.run_id }}
+        path: |
+          predictions_*.json
+          *.log
+        retention-days: 7
+    
+    - name: Summary
+      if: always()
+      run: |
+        echo "## 📊 Prediction Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ steps.check_data.outputs.has_data }}" == "true" ]; then
+          echo "✅ **Data Available**: Real F1 data from Worker API" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f predictions_*.json ]; then
+            echo "✅ **Predictions Generated**: Successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Top 3 Predictions:" >> $GITHUB_STEP_SUMMARY
+            cat predictions_*.json | jq -r '.predictions[:3] | .[] | "- **\(.driver_code)**: Position \(.predicted_position) (Confidence: \(.confidence))"' >> $GITHUB_STEP_SUMMARY || true
+          else
+            echo "⚠️ **Predictions**: Not generated (ML service issue)" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "❌ **Data Available**: No real data available" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🔗 [View Dashboard](https://f1-predictions-dashboard.pages.dev)" >> $GITHUB_STEP_SUMMARY
