@@ -47,10 +47,13 @@ jobs:
       env:
         WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
       run: |
+        # Create necessary directories
+        mkdir -p f1_cache models/ensemble
+        
         # Check if ensemble models exist or force retrain
         if [ ! -f "models/ensemble/ensemble_model.pkl" ] || [ "${{ github.event.inputs.force_retrain }}" == "true" ]; then
           echo "Training ensemble models..."
-          python train_models_ensemble.py
+          python train_models_ensemble_fixed.py
         fi
         
         # Run legacy model for comparison
