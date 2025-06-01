@@ -82,14 +82,8 @@ jobs:
         echo "✅ Predictions generated successfully"
         echo "Check the dashboard at: https://f1-predictions-dashboard.pages.dev"
     
-    - name: Create issue on failure
+    - name: Log failure
       if: failure()
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: 'Predictions Pipeline Failed',
-            body: `The predictions pipeline failed on ${new Date().toISOString()}\n\nWorkflow run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-          })
+      run: |
+        echo "❌ Predictions pipeline failed"
+        echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

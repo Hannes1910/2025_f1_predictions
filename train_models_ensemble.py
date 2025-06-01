@@ -21,8 +21,10 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Import existing utilities from ml_package
-from ml_package.data_loader import DataLoader
-from ml_package.feature_engineer import FeatureEngineer
+import sys
+sys.path.append('./packages/ml-core')
+from f1_predictor.data_loader import DataLoader
+from f1_predictor.feature_engineering import FeatureEngineer
 
 class EnsembleF1Predictor:
     """Advanced ensemble model for F1 race predictions"""

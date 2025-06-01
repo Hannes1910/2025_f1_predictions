@@ -11,8 +11,10 @@ import joblib
 import os
 from datetime import datetime, timedelta
 import fastf1
-from ml_package.data_loader import DataLoader
-from ml_package.feature_engineer import FeatureEngineer
+import sys
+sys.path.append('./packages/ml-core')
+from f1_predictor.data_loader import DataLoader
+from f1_predictor.feature_engineering import FeatureEngineer
 
 # Enable FastF1 cache
 fastf1.Cache.enable_cache('f1_cache')
