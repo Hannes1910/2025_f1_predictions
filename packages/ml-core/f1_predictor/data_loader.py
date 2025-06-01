@@ -101,10 +101,20 @@ class DataLoader:
         }
     
     def load_2024_season_data(self) -> pd.DataFrame:
-        """Load full 2024 season data for training - delegates to RealF1DataLoader"""
-        from load_real_f1_data import RealF1DataLoader
-        loader = RealF1DataLoader()
-        return loader.load_2024_season_data()
+        """Load SMART data: 2025 for performance, 2024 for patterns only"""
+        try:
+            # Use smart loader that separates current performance from historical patterns
+            from load_smart_f1_data import SmartF1DataLoader
+            loader = SmartF1DataLoader()
+            return loader.load_2024_season_data()
+        except ImportError:
+            # Fallback to v2 if smart not available
+            try:
+                from load_real_f1_data_v2 import RealF1DataLoader
+            except ImportError:
+                from load_real_f1_data import RealF1DataLoader
+            loader = RealF1DataLoader()
+            return loader.load_2024_season_data()
     
     def get_circuit_coordinates(self) -> Dict[str, Tuple[float, float]]:
         """Get GPS coordinates for F1 circuits"""

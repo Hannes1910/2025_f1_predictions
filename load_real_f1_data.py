@@ -31,32 +31,36 @@ class RealF1DataLoader:
         self.feature_engineer = FeatureEngineer()
         
     def load_2024_season_data(self):
-        """Load full 2024 season data for training"""
-        logger.info("Loading 2024 F1 season data...")
+        """Load full 2024 AND 2025 season data for training"""
+        logger.info("Loading 2024 and 2025 F1 season data...")
         
         all_race_data = []
         
-        # Get 2024 race calendar
-        schedule = fastf1.get_event_schedule(2024)
-        races = schedule[schedule['EventFormat'] != 'testing']
-        
-        logger.info(f"Found {len(races)} races in 2024 season")
-        
-        for idx, race in races.iterrows():
-            try:
-                race_name = race['EventName']
-                race_round = race['RoundNumber']
+        # Load both 2024 and 2025 seasons
+        for year in [2024, 2025]:
+            logger.info(f"\nLoading {year} season...")
+            
+            # Get race calendar
+            schedule = fastf1.get_event_schedule(year)
+            races = schedule[schedule['EventFormat'] != 'testing']
+            
+            logger.info(f"Found {len(races)} races in {year} season")
+            
+            for idx, race in races.iterrows():
+                try:
+                    race_name = race['EventName']
+                    race_round = race['RoundNumber']
+                    
+                    # Skip future races
+                    if pd.to_datetime(race['EventDate']) > datetime.now():
+                        logger.info(f"Skipping future race: {race_name}")
+                        continue
+                    
+                    logger.info(f"Loading data for {year} Round {race_round}: {race_name}")
                 
-                # Skip future races
-                if pd.to_datetime(race['EventDate']) > datetime.now():
-                    logger.info(f"Skipping future race: {race_name}")
-                    continue
-                
-                logger.info(f"Loading data for Round {race_round}: {race_name}")
-                
-                # Load race session
-                session = fastf1.get_session(2024, race_round, 'R')
-                session.load()
+                    # Load race session
+                    session = fastf1.get_session(year, race_round, 'R')
+                    session.load()
                 
                 # Get race results
                 results = session.results.copy()
