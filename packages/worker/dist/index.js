@@ -8,7 +8,8 @@ import { handleCreatePredictions, handleTriggerPredictions } from './handlers/pr
 import { handleRaceDetails, handleQualifyingData } from './handlers/race-details';
 import { handleCreateModelMetrics, handleGetModelMetrics } from './handlers/model-metrics';
 import { handleGenerateUltraPredictions, handleLatestUltraPredictions, handleModelStatus, handleBatchGenerate } from './handlers/ultra-predictions';
-import { handleGetDriverStats, handleGetTeamStats, handleGetRaceFeatures, handleGetCircuitPatterns, handleGetMLPredictionData } from './handlers/data-api';
+import { handleGetDriverStatsClean as handleGetDriverStats, handleGetTeamStatsClean as handleGetTeamStats, handleGetRaceFeaturesClean as handleGetRaceFeatures, handleGetCircuitPatternsClean as handleGetCircuitPatterns, handleGetMLPredictionDataClean as handleGetMLPredictionData } from './handlers/data-api';
+import { handleCreateQualifyingResults, handleGetQualifyingResults } from './handlers/qualifying-admin';
 const router = Router();
 // CORS headers
 const corsHeaders = {
@@ -34,10 +35,12 @@ router.get('/api/races', handleRaces);
 router.get('/api/analytics/accuracy', handleAccuracy);
 router.get('/api/race/:raceId', handleRaceDetails);
 router.get('/api/qualifying/:raceId', handleQualifyingData);
+router.get('/api/qualifying-results/:raceId', handleGetQualifyingResults);
 // Admin routes (require API key)
 router.post('/api/admin/predictions', handleCreatePredictions);
 router.post('/api/admin/trigger-predictions', handleTriggerPredictions);
 router.post('/api/admin/model-metrics', handleCreateModelMetrics);
+router.post('/api/admin/qualifying', handleCreateQualifyingResults);
 // Model metrics (public read)
 router.get('/api/model-metrics', handleGetModelMetrics);
 // Data API for ML Service (since D1 is edge-only)
