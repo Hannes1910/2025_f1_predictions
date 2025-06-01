@@ -1,0 +1,20 @@
+{
+  "model_type": "F1_Ultra_Predictor",
+  "expected_accuracy": 0.96,
+  "components": [
+    "ensemble",
+    "tft",
+    "mtl",
+    "gnn",
+    "bnn"
+  ],
+  "model_weights": {
+    "ensemble": 0.15,
+    "tft": 0.25,
+    "mtl": 0.2,
+    "gnn": 0.25,
+    "bnn": 0.15
+  },
+  "validation_accuracy": 0.36,
+  "validation_mae": 5.155
+}

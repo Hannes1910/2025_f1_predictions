@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: f1-ml-service
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python ml_production_service.py
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: PYTHONPATH
+        value: /app
+    healthCheckPath: /
+    plan: free

@@ -1,0 +1,10 @@
+{
+  "build": {
+    "builder": "DOCKERFILE"
+  },
+  "deploy": {
+    "startCommand": "python ml_production_service.py",
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 100
+  }
+}

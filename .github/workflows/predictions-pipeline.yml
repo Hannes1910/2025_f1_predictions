@@ -20,15 +20,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
     
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/pip
@@ -47,18 +47,30 @@ jobs:
       env:
         WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
       run: |
+        # Check if ensemble models exist or force retrain
+        if [ ! -f "models/ensemble/ensemble_model.pkl" ] || [ "${{ github.event.inputs.force_retrain }}" == "true" ]; then
+          echo "Training ensemble models..."
+          python train_models_ensemble.py
+        fi
+        
+        # Run legacy model for comparison
         python scripts/train_models_v2.py \
           ${{ github.event.inputs.force_retrain == 'true' && '--force' || '' }}
     
     - name: Sync predictions to Cloudflare
       env:
         PREDICTIONS_API_KEY: ${{ secrets.PREDICTIONS_API_KEY }}
+        API_URL: https://f1-predictions-api.vprifntqe.workers.dev
       run: |
+        # Sync ensemble predictions
+        python sync_ensemble_predictions.py
+        
+        # Also sync legacy predictions for A/B testing
         python scripts/sync_predictions.py \
           --api-url https://f1-predictions-api.vprifntqe.workers.dev
     
     - name: Upload model artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: models-${{ github.run_id }}
         path: models/

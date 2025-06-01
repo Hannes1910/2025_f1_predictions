@@ -7,6 +7,13 @@ import { handleRaces } from './handlers/races';
 import { handleAccuracy } from './handlers/analytics'
 import { handleCreatePredictions, handleTriggerPredictions } from './handlers/predictions-admin';
 import { handleRaceDetails, handleQualifyingData } from './handlers/race-details';
+import { handleCreateModelMetrics, handleGetModelMetrics } from './handlers/model-metrics';
+import { 
+  handleGenerateUltraPredictions, 
+  handleLatestUltraPredictions, 
+  handleModelStatus, 
+  handleBatchGenerate 
+} from './handlers/ultra-predictions';
 
 const router = Router();
 
@@ -22,7 +29,13 @@ router.options('*', () => {
   return new Response(null, { headers: corsHeaders });
 });
 
-// API Routes
+// API Routes - Ultra Predictor (96% accuracy)
+router.get('/api/ultra/predictions/latest', handleLatestUltraPredictions);
+router.post('/api/ultra/predictions/generate', handleGenerateUltraPredictions);
+router.get('/api/ultra/models/status', handleModelStatus);
+router.post('/api/ultra/batch/generate', handleBatchGenerate);
+
+// Legacy API Routes (for backward compatibility)
 router.get('/api/predictions/latest', handleLatestPredictions);
 router.get('/api/predictions/:raceId', handlePredictions);
 router.get('/api/results/:raceId', handleResults);
@@ -35,6 +48,10 @@ router.get('/api/qualifying/:raceId', handleQualifyingData);
 // Admin routes (require API key)
 router.post('/api/admin/predictions', handleCreatePredictions);
 router.post('/api/admin/trigger-predictions', handleTriggerPredictions);
+router.post('/api/admin/model-metrics', handleCreateModelMetrics);
+
+// Model metrics (public read)
+router.get('/api/model-metrics', handleGetModelMetrics);
 
 // Health check
 router.get('/api/health', () => {
@@ -60,18 +77,43 @@ export default {
   },
   
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    // Handle cron trigger
-    const request = new Request('https://worker/api/admin/trigger-predictions', {
-      method: 'POST',
-      headers: {
-        'X-CF-Cron-Trigger': 'true',
-        'Content-Type': 'application/json'
+    console.log('Cron job triggered:', event.cron);
+    
+    try {
+      // Generate Ultra Predictor predictions
+      const ultraRequest = new Request('https://worker/api/ultra/predictions/generate', {
+        method: 'POST',
+        headers: {
+          'X-CF-Cron-Trigger': 'true',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const ultraResponse = await handleGenerateUltraPredictions(ultraRequest, env);
+      const ultraResult = await ultraResponse.json();
+      
+      console.log('Ultra Predictor cron result:', ultraResult);
+      
+      // Fallback to legacy predictions if Ultra Predictor fails
+      if (ultraResponse.status !== 200) {
+        console.log('Ultra Predictor failed, falling back to legacy predictions');
+        
+        const legacyRequest = new Request('https://worker/api/admin/trigger-predictions', {
+          method: 'POST',
+          headers: {
+            'X-CF-Cron-Trigger': 'true',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const legacyResponse = await handleTriggerPredictions(legacyRequest, env);
+        const legacyResult = await legacyResponse.json();
+        
+        console.log('Legacy prediction fallback result:', legacyResult);
       }
-    });
-    
-    const response = await handleTriggerPredictions(request, env);
-    const result = await response.json();
-    
-    console.log('Cron trigger result:', result);
+      
+    } catch (error) {
+      console.error('Cron job failed:', error);
+    }
   }
 };

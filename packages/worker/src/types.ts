@@ -2,6 +2,8 @@ export interface Env {
   DB: D1Database;
   ENVIRONMENT: string;
   PREDICTIONS_API_KEY: string;
+  FASTF1_SERVICE_URL?: string;
+  ML_SERVICE_URL?: string;
 }
 
 export interface Driver {
