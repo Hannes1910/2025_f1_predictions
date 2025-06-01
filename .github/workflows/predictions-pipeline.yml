@@ -52,8 +52,10 @@ jobs:
         
         # Check if ensemble models exist or force retrain
         if [ ! -f "models/ensemble/ensemble_model.pkl" ] || [ "${{ github.event.inputs.force_retrain }}" == "true" ]; then
-          echo "Training ensemble models..."
-          python train_models_ensemble_fixed.py
+          echo "Training ensemble models with real F1 data..."
+          # Copy the real data loader to root for import
+          cp load_real_f1_data.py ./
+          python train_models_ensemble.py
         fi
         
         # Run legacy model for comparison

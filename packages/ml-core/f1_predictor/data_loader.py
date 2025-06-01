@@ -100,6 +100,12 @@ class DataLoader:
             "BEA": "Haas", "DOO": "Alpine", "BOR": "Kick Sauber", "LAW": "Racing Bulls"
         }
     
+    def load_2024_season_data(self) -> pd.DataFrame:
+        """Load full 2024 season data for training - delegates to RealF1DataLoader"""
+        from load_real_f1_data import RealF1DataLoader
+        loader = RealF1DataLoader()
+        return loader.load_2024_season_data()
+    
     def get_circuit_coordinates(self) -> Dict[str, Tuple[float, float]]:
         """Get GPS coordinates for F1 circuits"""
         return {
