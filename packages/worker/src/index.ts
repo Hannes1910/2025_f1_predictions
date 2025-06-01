@@ -14,6 +14,13 @@ import {
   handleModelStatus, 
   handleBatchGenerate 
 } from './handlers/ultra-predictions';
+import {
+  handleGetDriverStats,
+  handleGetTeamStats,
+  handleGetRaceFeatures,
+  handleGetCircuitPatterns,
+  handleGetMLPredictionData
+} from './handlers/data-api';
 
 const router = Router();
 
@@ -52,6 +59,13 @@ router.post('/api/admin/model-metrics', handleCreateModelMetrics);
 
 // Model metrics (public read)
 router.get('/api/model-metrics', handleGetModelMetrics);
+
+// Data API for ML Service (since D1 is edge-only)
+router.get('/api/data/driver/:driverId', handleGetDriverStats);
+router.get('/api/data/team/:team', handleGetTeamStats);
+router.get('/api/data/race/:raceId/features', handleGetRaceFeatures);
+router.get('/api/data/circuit/:circuit/patterns', handleGetCircuitPatterns);
+router.post('/api/data/ml-prediction-data', handleGetMLPredictionData);
 
 // Health check
 router.get('/api/health', () => {
